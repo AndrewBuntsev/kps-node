@@ -1,7 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
-import { Task, CreateTaskRequest, TaskQueryParams } from '../types/task';
-// Import your validation schemas when ready
-// import { createTaskSchema } from '../validation/taskValidation';
+import { Task, CreateTaskRequest, TaskQueryParams, TaskStatus, TaskPriority } from '../types/task';
+import { TaskService } from '../services/taskService';
+import { validateCreateTask, validateTaskQuery } from '../validation/taskValidation';
+import { createError } from '../middleware/errorHandler';
 
 /**
  * Task Controller
@@ -17,13 +18,20 @@ import { Task, CreateTaskRequest, TaskQueryParams } from '../types/task';
 
 export const getAllTasks = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    // TODO: Implement get all tasks
-    // - Extract query parameters for filtering (status, priority)
-    // - Call task service method
-    // - Sort by priority then by createdAt
-    // - Return filtered and sorted tasks
-    
-    res.status(501).json({ message: 'Not implemented yet' });
+    const queryParams: TaskQueryParams = {
+      status: req.query.status as TaskStatus,
+      priority: req.query.priority as TaskPriority
+    };
+
+    const { error, value } = validateTaskQuery(queryParams);
+    if (error) {
+      next(createError(error.message, 400));
+      return;
+    }
+
+    const tasks: Task[] = await TaskService.getAllTasks(value);
+
+    res.status(200).json(tasks);
   } catch (error) {
     next(error);
   }
@@ -31,12 +39,15 @@ export const getAllTasks = async (req: Request, res: Response, next: NextFunctio
 
 export const createTask = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    // TODO: Implement create task
-    // - Validate request body using Joi schema
-    // - Call task service to create task
-    // - Return 201 with created task
-    
-    res.status(501).json({ message: 'Not implemented yet' });
+    const taskData: CreateTaskRequest = req.body;
+    const { error, value } = validateCreateTask(taskData);
+    if (error) {
+      next(createError(error.message, 400));
+      return;
+    }
+
+    const newTask: Task = await TaskService.createTask(value);
+    res.status(201).json(newTask);
   } catch (error) {
     next(error);
   }

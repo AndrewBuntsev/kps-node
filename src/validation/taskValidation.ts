@@ -2,26 +2,35 @@ import Joi from 'joi';
 
 /**
  * Task Validation Schemas
- * 
- * TODO: Implement Joi validation schemas for task operations
- * Reference the task requirements in README.md
  */
 
 export const createTaskSchema = Joi.object({
-  // TODO: Define validation schema for creating a task
-  // Remember the requirements:
-  // - title: required, string, max 100 characters
-  // - description: optional, string, max 500 characters  
-  // - priority: required, one of 'low', 'medium', 'high'
-  // - dueDate: optional, valid date
-  // Note: status, id, and timestamps are set automatically
+  title: Joi.string().max(100).required().messages({
+    'string.required': 'Title is required',
+    'string.max': 'Title length cannot exceed 100 characters'
+  }),
+  description: Joi.string().max(500).optional().messages({
+    'string.max': 'Description length cannot exceed 500 characters'
+  }),
+  priority: Joi.string().valid('low', 'medium', 'high').required().messages({
+    'any.required': 'Priority is required',
+    'any.only': 'Priority must be one of low, medium, or high'
+  }),
+  dueDate: Joi.date().greater('now').optional().messages({
+    'date.base': 'Due date must be a valid date',
+    'date.greater': 'Due date must be in the future'
+  }),
 }).unknown(false); // Reject unknown fields
 
 export const taskQuerySchema = Joi.object({
-  // TODO: Define validation schema for query parameters
-  // - status: optional, valid task status
-  // - priority: optional, valid task priority
+  status: Joi.string().valid('pending', 'in-progress', 'completed').optional().messages({
+    'any.only': 'Status must be one of pending, in-progress, or completed'
+  }),
+  priority: Joi.string().valid('low', 'medium', 'high').optional().messages({
+    'any.only': 'Priority must be one of low, medium, or high'
+  }),
 }).unknown(false); // Reject unknown query params
+
 
 // Validation helper functions
 export const validateCreateTask = (data: unknown) => {

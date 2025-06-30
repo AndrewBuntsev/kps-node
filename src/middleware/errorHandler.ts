@@ -24,7 +24,11 @@ export const errorHandler = (
   // - Format error responses consistently
   // - Log errors appropriately
   
-  console.error('Error:', err);
+  if (process.env.NODE_ENV !== 'test') {
+    // TODO: Implement proper logging
+    console.error('Error:', err);
+  }
+  
   
   // Default error response
   res.status(err.statusCode || 500).json({

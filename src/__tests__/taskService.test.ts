@@ -14,6 +14,7 @@ describe('TaskService', () => {
     // Clear tasks before each test to ensure test isolation
     // Candidates will need to implement a method to clear tasks or handle this
     jest.clearAllMocks();
+    TaskService.clearAllTasks();
   });
 
   describe('createTask', () => {
@@ -72,6 +73,25 @@ describe('TaskService', () => {
       const result2 = await TaskService.createTask(taskData2);
 
       expect(result1.id).not.toBe(result2.id);
+    });
+
+    it('should fail if a task with the same title already exists', async () => {
+      const taskData1: CreateTaskRequest = {
+        title: 'Task 1',
+        priority: 'high',
+      };
+
+      const taskData2: CreateTaskRequest = {
+        title: 'Task 1',
+        priority: 'medium',
+      };
+
+      const result1 = await TaskService.createTask(taskData1);
+      expect(result1.id).toBeDefined();
+
+      await expect(TaskService.createTask(taskData2))
+        .rejects
+        .toThrow(`A task with the title 'Task 1' already exists`);
     });
   });
 

@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import { taskRoutes } from './routes/taskRoutes';
-import { errorHandler } from './middleware/errorHandler';
+import { createError, errorHandler } from './middleware/errorHandler';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -18,6 +18,11 @@ app.use('/api', taskRoutes);
 // Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
+});
+
+// Route not found handler (should be after all routes)
+app.use((req, res, next) => {
+  next(createError(`${req.method} ${req.originalUrl} not found`, 404));
 });
 
 // Error handling middleware (should be last)

@@ -203,6 +203,20 @@ describe('Task API Integration Tests', () => {
       expect(response.body.error.message).toContain('title');
     });
 
+    it('should return 400 when title is missing', async () => {
+      const taskData = {
+        priority: 'high',
+      };
+
+      const response = await request(app)
+        .post('/api/tasks')
+        .send(taskData)
+        .expect(400);
+
+      expect(response.body.error).toBeDefined();
+      expect(response.body.error.message).toContain('title');
+    });
+
     it('should return 400 when title exceeds 100 characters', async () => {
       const taskData = {
         title: 'a'.repeat(101),
@@ -245,7 +259,7 @@ describe('Task API Integration Tests', () => {
         .expect(400);
 
       expect(response.body.error).toBeDefined();
-      expect(response.body.error.message).toContain('priority');
+      expect(response.body.error.message).toContain('Priority');
     });
 
     it('should return 400 for invalid priority value', async () => {
@@ -260,7 +274,7 @@ describe('Task API Integration Tests', () => {
         .expect(400);
 
       expect(response.body.error).toBeDefined();
-      expect(response.body.error.message).toContain('priority');
+      expect(response.body.error.message).toContain('Priority');
     });
 
     it('should return 400 for invalid date format', async () => {

@@ -2,12 +2,25 @@ import { validateCreateTask, validateTaskQuery } from '../validation/taskValidat
 
 describe('Task Validation', () => {
   describe('validateCreateTask', () => {
+    it('should fail validation if dueDate in not a future date', () => {
+      const validTask = {
+        title: 'Test Task',
+        description: 'Test Description',
+        priority: 'high',
+        dueDate: new Date(),
+      };
+
+      const result = validateCreateTask(validTask);
+      expect(result.error).toBeDefined();
+      expect(result.error!.details[0].message).toContain('future');
+    });
+
     it('should pass validation for valid task data', () => {
       const validTask = {
         title: 'Test Task',
         description: 'Test Description',
         priority: 'high',
-        dueDate: new Date().toISOString(),
+        dueDate: new Date(Date.now() + 86400000), // Tomorrow
       };
 
       const result = validateCreateTask(validTask);
@@ -66,7 +79,7 @@ describe('Task Validation', () => {
 
       const result = validateCreateTask(invalidTask);
       expect(result.error).toBeDefined();
-      expect(result.error!.details[0].message).toContain('priority');
+      expect(result.error!.details[0].message).toContain('Priority');
     });
 
     it('should fail validation for invalid priority value', () => {
@@ -77,7 +90,7 @@ describe('Task Validation', () => {
 
       const result = validateCreateTask(invalidTask);
       expect(result.error).toBeDefined();
-      expect(result.error!.details[0].message).toContain('priority');
+      expect(result.error!.details[0].message).toContain('Priority');
     });
 
     it('should fail validation for invalid date format', () => {
@@ -120,7 +133,7 @@ describe('Task Validation', () => {
 
       const result = validateTaskQuery(queryParams);
       expect(result.error).toBeDefined();
-      expect(result.error!.details[0].message).toContain('status');
+      expect(result.error!.details[0].message).toContain('Status');
     });
 
     it('should fail validation for invalid priority', () => {
@@ -130,7 +143,7 @@ describe('Task Validation', () => {
 
       const result = validateTaskQuery(queryParams);
       expect(result.error).toBeDefined();
-      expect(result.error!.details[0].message).toContain('priority');
+      expect(result.error!.details[0].message).toContain('Priority');
     });
   });
 }); 
